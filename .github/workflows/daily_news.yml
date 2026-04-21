@@ -1,0 +1,42 @@
+name: Daily AI News Digest
+
+on:
+  schedule:
+    # 9:30am IST = 4:00am UTC
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+    # This allows you to run it manually
+    # from GitHub whenever you want
+
+jobs:
+  generate-digest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install anthropic tavily-python python-dotenv
+
+      - name: Create .env file
+        run: |
+          echo "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" >> .env
+          echo "TAVILY_API_KEY=${{ secrets.TAVILY_API_KEY }}" >> .env
+
+      - name: Run AI News Agent
+        run: python agent.py
+
+      - name: Push updated digest to GitHub
+        run: |
+          git config --global user.name "AI News Bot"
+          git config --global user.email "bot@ainews.com"
+          git add index.html
+          git add AI_News_*.html || true
+          git commit -m "Daily AI News Digest — $(date +'%Y-%m-%d')" || true
+          git push origin main
