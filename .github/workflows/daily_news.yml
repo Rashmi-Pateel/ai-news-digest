@@ -34,7 +34,7 @@ jobs:
 
       - name: Push updated digest to GitHub
         run: |
-          giit config --global user.name "AI-News-Bot"
+          git config --global user.name "AI-News-Bot"
           git config --global user.email "bot@ainews.com"
           cp AI_News_$(date +'%Y_%m_%d').html index.html
           git add index.html
